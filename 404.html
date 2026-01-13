@@ -3,23 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="0; url=/">
-    <script>
-        // Redirect to index.html, preserving pathname and query params
-        const path = window.location.pathname;
-        const search = window.location.search;
-        const hash = window.location.hash;
-        // If pathname is not just / or /index.html, preserve it for the app
-        if (path !== '/' && path !== '/index.html' && path !== '/404.html') {
-            window.location.replace('/' + path.slice(1) + search + hash);
-        } else {
-            window.location.replace('/' + search + hash);
-        }
-    </script>
+    <meta name="description" content="hexcod.es: type, paste, or link any hex color (with or without #). View full screen, copy, or download as PNG — links like hexcod.es/ff9900 or hexcod.es/#ff9900 just work.">
     <link rel="canonical" href="https://hexcod.es/">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="hexcod.es — Instantly share hex colors">
+    <meta property="og:description" content="Type, paste, or link a hex color (with or without #). Fullscreen view, copy to clipboard, and one-click PNG download.">
+    <meta property="og:url" content="https://hexcod.es/">
+    <meta property="og:image" content="https://hexcod.es/social-card.png">
+    <meta property="og:site_name" content="hexcod.es">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="hexcod.es — Instantly share hex colors">
+    <meta name="twitter:description" content="Links like hexcod.es/ff9900 or hexcod.es/#ff9900 open the color. Copy, download, or go fullscreen in a click.">
+    <meta name="twitter:image" content="https://hexcod.es/social-card.png">
+    <meta name="twitter:site" content="@aidancomi">
+
+    <meta name="theme-color" content="#000000">
     <title>hexcod.es — Hex Color Display</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <p>Redirecting to <a href="/">hexcod.es</a>...</p>
+    <div id="color-display" class="color-display"></div>
+    
+    <div id="controls" class="controls">
+        <div class="controls-content">
+            <div class="color-picker-container">
+                <label for="color-picker" class="sr-only">Color Picker</label>
+                <input type="color" id="color-picker" aria-label="Select a color">
+            </div>
+            
+            <div class="hex-display">
+                <input type="text" id="hex-input" class="hex-input" aria-label="Hex code" placeholder="#000000">
+            </div>
+            
+            <div class="button-group">
+                <button id="copy-btn" class="btn btn-primary" aria-label="Copy hex code to clipboard">
+                    <span class="btn-text">Copy</span>
+                    <span class="btn-icon">📋</span>
+                </button>
+                <button id="download-btn" class="btn btn-secondary" aria-label="Download color as image">
+                    <span class="btn-text">Download</span>
+                    <span class="btn-icon">⬇️</span>
+                </button>
+                <button id="fullscreen-btn" class="btn btn-secondary" aria-label="Toggle fullscreen mode">
+                    <span class="btn-text">Fullscreen</span>
+                    <span class="btn-icon">⛶</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast" aria-live="polite" aria-atomic="true"></div>
+    
+    <script src="script.js"></script>
 </body>
 </html>
