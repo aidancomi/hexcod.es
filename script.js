@@ -2,6 +2,31 @@
 let currentColor = '#000000';
 let isFullscreen = false;
 
+// Cookie utilities
+function setCookie(name, value, days = 365) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = `expires=${date.toUTCString()}`;
+    document.cookie = `${name}=${value};${expires};path=/`;
+}
+
+function getCookie(name) {
+    const nameEQ = name + '=';
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
+
+// Generate random hex color
+function generateRandomColor() {
+    const hex = Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+    return '#' + hex;
+}
+
 // DOM elements
 const colorDisplay = document.getElementById('color-display');
 const colorPicker = document.getElementById('color-picker');
@@ -18,8 +43,15 @@ function init() {
     if (urlHex) {
         setColor(urlHex);
     } else {
-        // Default to black if no hex in URL
-        setColor('#000000');
+        // Check for saved color in cookie
+        const savedColor = getCookie('lastColor');
+        if (savedColor && normalizeHex(savedColor.replace(/^#/, ''))) {
+            setColor(savedColor);
+        } else {
+            // Generate random color if no cookie
+            const randomColor = generateRandomColor();
+            setColor(randomColor);
+        }
     }
     
     // Set up event listeners
@@ -112,6 +144,9 @@ function setColor(hex) {
     
     // Update control styling based on color brightness
     updateControlStyling(normalized);
+    
+    // Save color to cookie
+    setCookie('lastColor', normalized);
 }
 
 // Check if color is light (for UI contrast)
