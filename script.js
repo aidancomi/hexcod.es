@@ -234,8 +234,106 @@ function setupEventListeners() {
     // Copy button
     copyBtn.addEventListener('click', copyToClipboard);
     
-    // Download button
-    downloadBtn.addEventListener('click', downloadColor);
+    // Download button and menu
+    const downloadMenu = document.getElementById('download-menu');
+    const downloadContainer = downloadBtn.parentElement;
+    
+    // Detect if device supports touch
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    let closeTimeout = null;
+    let isMenuOpen = false;
+    
+    // Show menu
+    const showMenu = () => {
+        if (closeTimeout) {
+            clearTimeout(closeTimeout);
+            closeTimeout = null;
+        }
+        downloadMenu.classList.add('show');
+        isMenuOpen = true;
+    };
+    
+    // Hide menu with delay (desktop only)
+    const hideMenu = () => {
+        if (isTouchDevice) return; // Don't auto-hide on touch devices
+        closeTimeout = setTimeout(() => {
+            downloadMenu.classList.remove('show');
+            isMenuOpen = false;
+            closeTimeout = null;
+        }, 200); // 200ms delay before closing
+    };
+    
+    // Toggle menu (mobile/touch devices)
+    const toggleMenu = (e) => {
+        e.stopPropagation();
+        if (isMenuOpen) {
+            downloadMenu.classList.remove('show');
+            isMenuOpen = false;
+        } else {
+            showMenu();
+        }
+    };
+    
+    if (isTouchDevice) {
+        // Mobile: tap to toggle menu, or download default if menu is open
+        downloadBtn.addEventListener('click', (e) => {
+            if (isMenuOpen) {
+                // Menu is open: download at default 1080p
+                e.stopPropagation();
+                downloadColor('1080p');
+                downloadMenu.classList.remove('show');
+                isMenuOpen = false;
+            } else {
+                // Menu is closed: open menu
+                toggleMenu(e);
+            }
+        });
+    } else {
+        // Desktop: hover to show menu
+        downloadContainer.addEventListener('mouseenter', showMenu);
+        downloadMenu.addEventListener('mouseenter', showMenu);
+        downloadContainer.addEventListener('mouseleave', hideMenu);
+        downloadMenu.addEventListener('mouseleave', hideMenu);
+        
+        // Click button directly = default 1080p (desktop)
+        downloadBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            downloadColor('1080p');
+            downloadMenu.classList.remove('show');
+            isMenuOpen = false;
+        });
+    }
+    
+    // Click menu option
+    const downloadOptions = document.querySelectorAll('.download-option');
+    downloadOptions.forEach(option => {
+        option.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const resolution = option.getAttribute('data-resolution');
+            downloadColor(resolution);
+            downloadMenu.classList.remove('show');
+            isMenuOpen = false;
+        });
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!downloadContainer.contains(e.target)) {
+            downloadMenu.classList.remove('show');
+            isMenuOpen = false;
+        }
+    });
+    
+    // On mobile, also close menu when tapping outside (touch events)
+    if (isTouchDevice) {
+        document.addEventListener('touchstart', (e) => {
+            if (!downloadContainer.contains(e.target)) {
+                downloadMenu.classList.remove('show');
+                isMenuOpen = false;
+            }
+        });
+    }
     
     // Fullscreen button
     fullscreenBtn.addEventListener('click', toggleFullscreen);
@@ -289,11 +387,53 @@ async function copyToClipboard() {
     }
 }
 
+// Parse resolution string to width and height
+function parseResolution(resolution) {
+    if (!resolution) {
+        return { width: 1920, height: 1080, name: '1080p' }; // Default
+    }
+    
+    resolution = resolution.toLowerCase().trim();
+    
+    // Standard resolutions
+    const resolutions = {
+        '1080p': { width: 1920, height: 1080, name: '1080p' },
+        '1080': { width: 1920, height: 1080, name: '1080p' },
+        '1440p': { width: 2560, height: 1440, name: '1440p' },
+        '1440': { width: 2560, height: 1440, name: '1440p' },
+        '4k': { width: 3840, height: 2160, name: '4K' },
+        '4K': { width: 3840, height: 2160, name: '4K' },
+        '6k': { width: 6144, height: 3456, name: '6K' },
+        '6K': { width: 6144, height: 3456, name: '6K' },
+        '8k': { width: 7680, height: 4320, name: '8K' },
+        '8K': { width: 7680, height: 4320, name: '8K' }
+    };
+    
+    if (resolutions[resolution]) {
+        return resolutions[resolution];
+    }
+    
+    // Custom resolution format: widthxheight (e.g., 10x15, 1920x1080)
+    const customMatch = resolution.match(/^(\d+)x(\d+)$/);
+    if (customMatch) {
+        const width = parseInt(customMatch[1], 10);
+        const height = parseInt(customMatch[2], 10);
+        if (width > 0 && height > 0 && width <= 16384 && height <= 16384) {
+            return { width, height, name: `${width}×${height}` };
+        }
+    }
+    
+    // Default to 1080p if invalid
+    return { width: 1920, height: 1080, name: '1080p' };
+}
+
 // Download color as PNG image
-function downloadColor() {
+function downloadColor(resolution = '1080p') {
+    const res = parseResolution(resolution);
+    
     const canvas = document.createElement('canvas');
-    canvas.width = 1920;
-    canvas.height = 1080;
+    canvas.width = res.width;
+    canvas.height = res.height;
     const ctx = canvas.getContext('2d');
     
     // Fill with color
@@ -306,13 +446,13 @@ function downloadColor() {
         const a = document.createElement('a');
         a.href = url;
         const hexWithoutHash = currentColor.slice(1);
-        a.download = `hex-${hexWithoutHash}.png`;
+        a.download = `hex-${hexWithoutHash}-${res.name.toLowerCase().replace(/\s+/g, '-')}.png`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         
-        showToast('Download started!');
+        showToast(`Download started! (${res.name})`);
     }, 'image/png');
 }
 
@@ -400,7 +540,9 @@ function handleQueryParameters() {
     if (params.has('download')) {
         // Small delay to ensure color is set
         setTimeout(() => {
-            downloadColor();
+            const downloadValue = params.get('download');
+            // Support download=1080p, download=4k, download=10x15, etc.
+            downloadColor(downloadValue || '1080p');
             // Remove parameter from URL after download
             removeQueryParameter('download');
         }, 100);

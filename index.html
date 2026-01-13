@@ -51,10 +51,19 @@
                     <span class="btn-text">Copy</span>
                     <span class="btn-icon">📋</span>
                 </button>
-                <button id="download-btn" class="btn btn-secondary" aria-label="Download color as image">
-                    <span class="btn-text">Download</span>
-                    <span class="btn-icon">⬇️</span>
-                </button>
+                <div class="download-container">
+                    <button id="download-btn" class="btn btn-secondary" aria-label="Download color as image">
+                        <span class="btn-text">Download</span>
+                        <span class="btn-icon">⬇️</span>
+                    </button>
+                    <div id="download-menu" class="download-menu" role="menu">
+                        <button class="download-option" data-resolution="1080p" role="menuitem">1080p (1920×1080)</button>
+                        <button class="download-option" data-resolution="1440p" role="menuitem">1440p (2560×1440)</button>
+                        <button class="download-option" data-resolution="4k" role="menuitem">4K (3840×2160)</button>
+                        <button class="download-option" data-resolution="6k" role="menuitem">6K (6144×3456)</button>
+                        <button class="download-option" data-resolution="8k" role="menuitem">8K (7680×4320)</button>
+                    </div>
+                </div>
                 <button id="fullscreen-btn" class="btn btn-secondary" aria-label="Toggle fullscreen mode">
                     <span class="btn-text">Fullscreen</span>
                     <span class="btn-icon">⛶</span>
