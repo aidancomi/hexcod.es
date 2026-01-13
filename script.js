@@ -42,24 +42,22 @@ function init() {
 
 // Parse hex code from URL pathname or hash
 function parseHexFromURL() {
-    // Check hash first (e.g., hexcod.es/#000000)
-    let hex = window.location.hash.slice(1).toLowerCase();
-    
-    // If no hash, check pathname (e.g., hexcod.es/000000)
-    if (!hex) {
-        const pathname = window.location.pathname;
-        hex = pathname.slice(1).toLowerCase();
+    const pathnameHex = window.location.pathname.slice(1).toLowerCase();
+    const hashHex = window.location.hash.slice(1).toLowerCase();
+
+    // Try pathname first
+    const normalizedPath = normalizeHex(pathnameHex);
+    if (normalizedPath) {
+        return normalizedPath;
     }
-    
-    if (!hex) {
-        return null;
+
+    // Fallback to hash
+    const normalizedHash = normalizeHex(hashHex);
+    if (normalizedHash) {
+        return normalizedHash;
     }
-    
-    // Remove # if present (shouldn't happen, but just in case)
-    hex = hex.replace(/^#/, '');
-    
-    // Validate and normalize hex
-    return normalizeHex(hex);
+
+    return null;
 }
 
 // Normalize hex code (3-digit to 6-digit, add #)
@@ -99,17 +97,18 @@ function setColor(hex) {
     // Update hex input (without #)
     hexInput.value = normalized.slice(1).toUpperCase();
     
-    // Update URL without reload (preserve query parameters)
+    // Update URL without reload (preserve query parameters, drop hash color)
     const hexWithoutHash = normalized.slice(1);
     const newPath = '/' + hexWithoutHash;
     const params = new URLSearchParams(window.location.search);
     const queryString = params.toString() ? '?' + params.toString() : '';
-    const hash = window.location.hash;
-    const newURL = newPath + queryString + hash;
+    const newURL = newPath + queryString;
     
-    if (window.location.pathname + window.location.search + window.location.hash !== newURL) {
+    if (window.location.pathname + window.location.search !== newURL) {
         window.history.pushState({ color: normalized }, '', newURL);
     }
+    // Clear hash if present to avoid duplicate hex in URL
+    clearHash();
     
     // Update control styling based on color brightness
     updateControlStyling(normalized);
@@ -378,6 +377,16 @@ function removeQueryParameter(param) {
     const url = new URL(window.location);
     url.searchParams.delete(param);
     window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+}
+
+// Clear hash fragment from URL
+function clearHash() {
+    if (!window.location.hash) {
+        return;
+    }
+    const url = new URL(window.location);
+    url.hash = '';
+    window.history.replaceState({}, '', url.pathname + url.search);
 }
 
 // Show toast notification

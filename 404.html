@@ -3,43 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Display hex colors with URL-based routing. Share colors easily with hexcod.es/000000">
-    <title>Hexcod.es - Hex Color Display</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta http-equiv="refresh" content="0; url=/">
+    <script>
+        // Redirect to index.html, preserving pathname and query params
+        const path = window.location.pathname;
+        const search = window.location.search;
+        const hash = window.location.hash;
+        // If pathname is not just / or /index.html, preserve it for the app
+        if (path !== '/' && path !== '/index.html' && path !== '/404.html') {
+            window.location.replace('/' + path.slice(1) + search + hash);
+        } else {
+            window.location.replace('/' + search + hash);
+        }
+    </script>
+    <link rel="canonical" href="https://hexcod.es/">
+    <title>hexcod.es — Hex Color Display</title>
 </head>
 <body>
-    <div id="color-display" class="color-display"></div>
-    
-    <div id="controls" class="controls">
-        <div class="controls-content">
-            <div class="color-picker-container">
-                <label for="color-picker" class="sr-only">Color Picker</label>
-                <input type="color" id="color-picker" aria-label="Select a color">
-            </div>
-            
-            <div class="hex-display">
-                <input type="text" id="hex-input" class="hex-input" aria-label="Hex code" readonly>
-            </div>
-            
-            <div class="button-group">
-                <button id="copy-btn" class="btn btn-primary" aria-label="Copy hex code to clipboard">
-                    <span class="btn-text">Copy</span>
-                    <span class="btn-icon">📋</span>
-                </button>
-                <button id="download-btn" class="btn btn-secondary" aria-label="Download color as image">
-                    <span class="btn-text">Download</span>
-                    <span class="btn-icon">⬇️</span>
-                </button>
-                <button id="fullscreen-btn" class="btn btn-secondary" aria-label="Toggle fullscreen mode">
-                    <span class="btn-text">Fullscreen</span>
-                    <span class="btn-icon">⛶</span>
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="toast" class="toast" aria-live="polite" aria-atomic="true"></div>
-    
-    <script src="script.js"></script>
+    <p>Redirecting to <a href="/">hexcod.es</a>...</p>
 </body>
 </html>

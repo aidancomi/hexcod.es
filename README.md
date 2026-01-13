@@ -1,4 +1,4 @@
-# Hexcod.es
+# hexcod.es
 
 A static single-page application for displaying hex colors with URL-based routing. Share colors easily by visiting `hexcod.es/000000` or `hexcod.es/fff`.
 
