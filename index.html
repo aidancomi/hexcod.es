@@ -29,7 +29,7 @@
     <meta name="twitter:site" content="@aidancomi">
 
     <script>
-    // Update meta tags immediately based on URL (for social media crawlers)
+    // Update meta tags if there's a color in the URL
     (function() {
         const pathname = window.location.pathname;
         const hash = window.location.hash.slice(1);
@@ -52,48 +52,19 @@
                 hex = hex.split('').map(c => c + c).join('');
             }
             const hexUpper = hex.toUpperCase();
-            const hexWithHash = '#' + hexUpper;
             
-            // Update meta tags
+            // Update meta tags to show "View this color"
             const ogTitle = document.getElementById('og-title');
             const ogDesc = document.getElementById('og-description');
-            const ogImage = document.getElementById('og-image');
             const twitterTitle = document.getElementById('twitter-title');
             const twitterDesc = document.getElementById('twitter-description');
-            const twitterImage = document.getElementById('twitter-image');
             const ogUrl = document.getElementById('og-url');
             
-            if (ogTitle) ogTitle.setAttribute('content', `#${hexUpper} — View this color on hexcod.es`);
-            if (ogDesc) ogDesc.setAttribute('content', `View #${hexUpper} on hexcod.es — Fullscreen, copy, or download this color.`);
-            if (twitterTitle) twitterTitle.setAttribute('content', `#${hexUpper} — View this color on hexcod.es`);
-            if (twitterDesc) twitterDesc.setAttribute('content', `View #${hexUpper} on hexcod.es — Fullscreen, copy, or download this color.`);
+            if (ogTitle) ogTitle.setAttribute('content', 'View this color on hexcod.es');
+            if (ogDesc) ogDesc.setAttribute('content', 'View this color on hexcod.es — Fullscreen, copy, or download this color.');
+            if (twitterTitle) twitterTitle.setAttribute('content', 'View this color on hexcod.es');
+            if (twitterDesc) twitterDesc.setAttribute('content', 'View this color on hexcod.es — Fullscreen, copy, or download this color.');
             if (ogUrl) ogUrl.setAttribute('content', window.location.href);
-            
-            // Generate preview image URL (using a data URL approach)
-            // Note: Some crawlers may not support data URLs, but this is the best we can do for static sites
-            const canvas = document.createElement('canvas');
-            canvas.width = 1200;
-            canvas.height = 630;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = hexWithHash;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Add text
-            const isLight = (parseInt(hex.slice(0, 2), 16) * 0.299 + 
-                           parseInt(hex.slice(2, 4), 16) * 0.587 + 
-                           parseInt(hex.slice(4, 6), 16) * 0.114) > 128;
-            ctx.fillStyle = isLight ? '#000000' : '#ffffff';
-            ctx.font = 'bold 120px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(hexWithHash, canvas.width / 2, canvas.height / 2);
-            
-            const previewImage = canvas.toDataURL('image/png');
-            if (ogImage) ogImage.setAttribute('content', previewImage);
-            if (twitterImage) twitterImage.setAttribute('content', previewImage);
-            
-            // Update page title
-            document.title = `#${hexUpper} — hexcod.es`;
         }
     })();
     </script>
