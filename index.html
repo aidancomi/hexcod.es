@@ -15,18 +15,88 @@
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="hexcod.es — Instantly share hex colors">
-    <meta property="og:description" content="Type, paste, or link a hex color. Fullscreen view, copy to clipboard, and one-click PNG download.">
-    <meta property="og:url" content="https://hexcod.es/">
-    <meta property="og:image" content="https://hexcod.es/social-card.png">
+    <meta property="og:title" id="og-title" content="hexcod.es — Instantly share hex colors">
+    <meta property="og:description" id="og-description" content="Type, paste, or link a hex color. Fullscreen view, copy to clipboard, and one-click PNG download.">
+    <meta property="og:url" id="og-url" content="https://hexcod.es/">
+    <meta property="og:image" id="og-image" content="https://hexcod.es/social-card.png">
     <meta property="og:site_name" content="hexcod.es">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="hexcod.es — Instantly share hex colors">
-    <meta name="twitter:description" content="Links like hexcod.es/ff9900 or hexcod.es/#ff9900 open the color. Copy, download, or go fullscreen in a click.">
-    <meta name="twitter:image" content="https://hexcod.es/social-card.png">
+    <meta name="twitter:title" id="twitter-title" content="hexcod.es — Instantly share hex colors">
+    <meta name="twitter:description" id="twitter-description" content="Links like hexcod.es/ff9900 or hexcod.es/#ff9900 open the color. Copy, download, or go fullscreen in a click.">
+    <meta name="twitter:image" id="twitter-image" content="https://hexcod.es/social-card.png">
     <meta name="twitter:site" content="@aidancomi">
+
+    <script>
+    // Update meta tags immediately based on URL (for social media crawlers)
+    (function() {
+        const pathname = window.location.pathname;
+        const hash = window.location.hash.slice(1);
+        
+        // Extract hex from pathname or hash
+        let hex = pathname.slice(1).toLowerCase();
+        if (!hex && hash) {
+            hex = hash.toLowerCase();
+        }
+        
+        // Remove # if present
+        hex = hex.replace(/^#/, '');
+        
+        // Validate hex format
+        const isValidHex = /^[0-9a-f]{3}$|^[0-9a-f]{6}$/i.test(hex);
+        
+        if (isValidHex) {
+            // Normalize to 6-digit
+            if (hex.length === 3) {
+                hex = hex.split('').map(c => c + c).join('');
+            }
+            const hexUpper = hex.toUpperCase();
+            const hexWithHash = '#' + hexUpper;
+            
+            // Update meta tags
+            const ogTitle = document.getElementById('og-title');
+            const ogDesc = document.getElementById('og-description');
+            const ogImage = document.getElementById('og-image');
+            const twitterTitle = document.getElementById('twitter-title');
+            const twitterDesc = document.getElementById('twitter-description');
+            const twitterImage = document.getElementById('twitter-image');
+            const ogUrl = document.getElementById('og-url');
+            
+            if (ogTitle) ogTitle.setAttribute('content', `#${hexUpper} — View this color on hexcod.es`);
+            if (ogDesc) ogDesc.setAttribute('content', `View #${hexUpper} on hexcod.es — Fullscreen, copy, or download this color.`);
+            if (twitterTitle) twitterTitle.setAttribute('content', `#${hexUpper} — View this color on hexcod.es`);
+            if (twitterDesc) twitterDesc.setAttribute('content', `View #${hexUpper} on hexcod.es — Fullscreen, copy, or download this color.`);
+            if (ogUrl) ogUrl.setAttribute('content', window.location.href);
+            
+            // Generate preview image URL (using a data URL approach)
+            // Note: Some crawlers may not support data URLs, but this is the best we can do for static sites
+            const canvas = document.createElement('canvas');
+            canvas.width = 1200;
+            canvas.height = 630;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = hexWithHash;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Add text
+            const isLight = (parseInt(hex.slice(0, 2), 16) * 0.299 + 
+                           parseInt(hex.slice(2, 4), 16) * 0.587 + 
+                           parseInt(hex.slice(4, 6), 16) * 0.114) > 128;
+            ctx.fillStyle = isLight ? '#000000' : '#ffffff';
+            ctx.font = 'bold 120px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(hexWithHash, canvas.width / 2, canvas.height / 2);
+            
+            const previewImage = canvas.toDataURL('image/png');
+            if (ogImage) ogImage.setAttribute('content', previewImage);
+            if (twitterImage) twitterImage.setAttribute('content', previewImage);
+            
+            // Update page title
+            document.title = `#${hexUpper} — hexcod.es`;
+        }
+    })();
+    </script>
 
     <meta name="theme-color" content="#000000">
     <title>hexcod.es — Hex Color Display</title>
