@@ -147,6 +147,9 @@ function setColor(hex) {
     
     // Save color to cookie
     setCookie('lastColor', normalized);
+    
+    // Update Open Graph and Twitter meta tags for social sharing
+    updateSocialMetaTags(normalized);
 }
 
 // Check if color is light (for UI contrast)
@@ -582,6 +585,78 @@ document.addEventListener('fullscreenchange', () => {
         exitFullscreen();
     }
 });
+
+// Update social media meta tags
+function updateSocialMetaTags(hex) {
+    const hexWithoutHash = hex.slice(1).toUpperCase();
+    const isHomepage = window.location.pathname === '/' || window.location.pathname === '';
+    
+    // Generate color preview image
+    const previewImage = generateColorPreviewImage(hex);
+    
+    if (isHomepage) {
+        // Homepage: generic description
+        updateMetaTag('og:title', 'hexcod.es — Instantly share hex colors');
+        updateMetaTag('og:description', 'Type, paste, or link a hex color. Fullscreen view, copy to clipboard, and one-click PNG download.');
+        updateMetaTag('twitter:title', 'hexcod.es — Instantly share hex colors');
+        updateMetaTag('twitter:description', 'Type, paste, or link a hex color. Fullscreen view, copy to clipboard, and one-click PNG download.');
+        updateMetaTag('og:image', 'https://hexcod.es/social-card.png');
+        updateMetaTag('twitter:image', 'https://hexcod.es/social-card.png');
+        document.title = 'hexcod.es — Hex Color Display';
+    } else {
+        // Specific color: show color preview
+        updateMetaTag('og:title', `#${hexWithoutHash} — View this color on hexcod.es`);
+        updateMetaTag('og:description', `View #${hexWithoutHash} on hexcod.es — Fullscreen, copy, or download this color.`);
+        updateMetaTag('twitter:title', `#${hexWithoutHash} — View this color on hexcod.es`);
+        updateMetaTag('twitter:description', `View #${hexWithoutHash} on hexcod.es — Fullscreen, copy, or download this color.`);
+        updateMetaTag('og:image', previewImage);
+        updateMetaTag('twitter:image', previewImage);
+        document.title = `#${hexWithoutHash} — hexcod.es`;
+    }
+    
+    // Update URL
+    updateMetaTag('og:url', window.location.href);
+}
+
+// Update a meta tag by property/name
+function updateMetaTag(property, content) {
+    // Try property attribute first (Open Graph)
+    let meta = document.querySelector(`meta[property="${property}"]`);
+    if (meta) {
+        meta.setAttribute('content', content);
+        return;
+    }
+    
+    // Try name attribute (Twitter)
+    meta = document.querySelector(`meta[name="${property}"]`);
+    if (meta) {
+        meta.setAttribute('content', content);
+        return;
+    }
+}
+
+// Generate a color preview image as data URL
+function generateColorPreviewImage(hex) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1200;
+    canvas.height = 630; // Standard Open Graph image size
+    const ctx = canvas.getContext('2d');
+    
+    // Fill with color
+    ctx.fillStyle = hex;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Add hex code text
+    ctx.fillStyle = isLightColor(hex) ? '#000000' : '#ffffff';
+    ctx.font = 'bold 120px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const hexText = hex.toUpperCase();
+    ctx.fillText(hexText, canvas.width / 2, canvas.height / 2);
+    
+    // Convert to data URL
+    return canvas.toDataURL('image/png');
+}
 
 // Initialize on load
 if (document.readyState === 'loading') {
